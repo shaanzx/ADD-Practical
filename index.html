@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<main>
+    <h1 class="text-center">AJAX Practical</h1>
+
+    <button class="btn btn-success mx-auto d-block" data-bs-toggle="modal" data-bs-target="#userModal">Add User</button>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="mb-3">
+                            <label for="user-Id" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="user-Id">
+                        </div>
+                        <div class="mb-3">
+                            <label for="user-Name" class="form-label">User Name</label>
+                            <input type="text" class="form-control" id="user-Name">
+                        </div>
+                        <button id="btn-submit" type="submit" class="btn btn-success w-100">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update User Modal -->
+    <div class="modal fade" id="updateUserModal" tabindex="-1" aria-labelledby="updateUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateUserModalLabel">Update User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateUserForm">
+                        <div class="mb-3">
+                            <label for="update-User-Id" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="update-User-Id" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update-User-Name" class="form-label">User Name</label>
+                            <input type="text" class="form-control" id="update-User-Name">
+                        </div>
+                        <button id="btn-update" type="submit" class="btn btn-primary w-100">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Table -->
+
+    <table class="table mt-5 mx-auto w-75">
+        <thead class="table-dark text-center">
+        <tr>
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Added Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody class="text-center">
+        </tbody>
+    </table>
+</main>
+
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+    // DATA SAVE
+    $('#userForm').submit((e) => {
+        e.preventDefault();
+
+        const userId = $('#user-Id').val();
+        const userName = $('#user-Name').val();
+
+        const userData = {
+            uid: userId,
+            name: userName
+        };
+        $.ajax({
+            url: 'https://84e823e2b7074a3f82a119dfcefafe00.weavy.io/api/users',
+            type: 'POST',
+            headers: {
+                'Authorization': 'Bearer wys_Q2xWwAOkaLrDd6EnkGX4lPWuDch7iX0ufTOD',
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(userData),
+
+            success: function (res) {
+                console.log(res);
+                $('#userModal').modal('hide');
+            },
+            error: function () {
+                console.log('Error');
+            }
+        });
+    });
+
+    // DATA GET
+    function fetchUsers() {
+        $.ajax({
+            url: 'https://84e823e2b7074a3f82a119dfcefafe00.weavy.io/api/users',
+            type: 'GET',
+            headers: {
+                'Authorization': 'Bearer wys_Q2xWwAOkaLrDd6EnkGX4lPWuDch7iX0ufTOD'
+            },
+            success: function (rec) {
+                console.log(rec);
+
+                const users = rec.data;
+                const tbody = $('tbody');
+                tbody.empty();
+                users.forEach((user) => {
+                    tbody.append(`
+                        <tr>
+                            <td>${user.uid}</td>
+                            <td>${user.display_name}</td>
+                            <td>${user.created_at}</td>
+                            <td>
+                                <button onclick="showUpdateForm('${user.uid}', '${user.display_name}')" class="btn btn-primary">Update</button>
+                                <button onclick="deleteUser('${user.uid}')" class="btn btn-danger ms-2">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            },
+            error: function () {
+                console.log('Error');
+            }
+        });
+    }
+    fetchUsers();
+
+    // SHOW Update Form in Modal
+    function showUpdateForm(uid, name) {
+        $('#update-User-Id').val(uid);
+        $('#update-User-Name').val(name);
+        $('#updateUserModal').modal('show');
+    }
+
+    // UPDATE User
+    $('#updateUserForm').submit((e) => {
+        e.preventDefault();
+
+        const userId = $('#update-User-Id').val();
+        const userName = $('#update-User-Name').val();
+
+        const userData = {
+            uid: userId,
+            name: userName
+        };
+        $.ajax({
+            url: `https://84e823e2b7074a3f82a119dfcefafe00.weavy.io/api/users/${userId}`,
+            type: 'PUT',
+            headers: {
+                'Authorization': 'Bearer wys_Q2xWwAOkaLrDd6EnkGX4lPWuDch7iX0ufTOD',
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(userData),
+            success: function (res) {
+                console.log(res);
+                $('#updateUserModal').modal('hide');
+                fetchUsers();
+            },
+            error: function () {
+                console.log('Error');
+            }
+        });
+    });
+
+    // DELETE User
+    function deleteUser(uid) {
+        $.ajax({
+            url: `https://84e823e2b7074a3f82a119dfcefafe00.weavy.io/api/users/${uid}`,
+            type: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer wys_Q2xWwAOkaLrDd6EnkGX4lPWuDch7iX0ufTOD'
+            },
+            success: function (res) {
+                console.log(res);
+                fetchUsers();
+            },
+            error: function () {
+                console.log('Error');
+            }
+        });
+    }
+</script>
+</body>
+</html>
