@@ -52,10 +52,16 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         String name = req.getParameter("name");
         String eMail = req.getParameter("email");
         String age = req.getParameter("age");
 
+        if(name == null || eMail == null || age == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\" : \"Invalid request\"}");
+            return;
+        }
         try {
             int id = studentList.size() + 1;
             int studentAge = Integer.parseInt(age);
@@ -64,6 +70,8 @@ public class StudentServlet extends HttpServlet {
             studentList.add(studentDTO);
         } catch (NumberFormatException e) {
             System.out.println("Invalid Age");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\" : \"Invalid age\"}");
         }
     }
 }
