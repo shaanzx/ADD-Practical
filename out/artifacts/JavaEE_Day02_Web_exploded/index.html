@@ -133,6 +133,36 @@
         })
     }
 
+    $('#btn_save_student').click((e) => {
+        e.preventDefault()
+        const name = $('#name').val()
+        const email = $('#email').val()
+        const age = $('#age').val()
+
+        const studentData = {
+            name, email, age
+        }
+        $.ajax({
+            url: "http://localhost:8080/JavaEE_Day02_Web_exploded/student",
+            type: "POST",
+            data: {
+                name: name,
+                email: email,
+                age: age
+            },
+            success(res) {
+                console.log(res)
+                fetchStudentData()
+                $(`#studentModal`).modal('hide')
+            },
+            error(res) {
+                console.log(res)
+            }
+        })
+
+
+    })
+
     $('#btn_update_student').click((e) => {
         e.preventDefault()
 
@@ -157,40 +187,12 @@
             success(res) {
                 console.log(res)
                 fetchStudentData()
+                $(`#updateStudentModal`).modal('hide')
             },
             error(res) {
                 console.log(res)
             }
         })
-    })
-
-    $('#btn_save_student').click((e) => {
-        e.preventDefault()
-        const name = $('#name').val()
-        const email = $('#email').val()
-        const age = $('#age').val()
-
-        const studentData = {
-            name, email, age
-        }
-        $.ajax({
-            url: "http://localhost:8080/JavaEE_Day02_Web_exploded/student",
-            type: "POST",
-            data: {
-                name: name,
-                email: email,
-                age: age
-            },
-            success(res) {
-                console.log(res)
-                fetchStudentData()
-            },
-            error(res) {
-                console.log(res)
-            }
-        })
-
-
     })
 
     const editStudent = (uid, name, email, age) => {
@@ -222,5 +224,4 @@
     fetchStudentData()
 </script>
 </body>
-
 </html>
