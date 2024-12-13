@@ -31,7 +31,7 @@ public class StudentServlet extends HttpServlet {
         for (int i = 0; i < studentList.size(); i++) {
             StudentDTO studentDTO = studentList.get(i);
 
-            String studentJson =  String.format(
+            String studentJson = String.format(
                     "{\"id\": %d, \"name\": \"%s\", \"email\": \"%s\", \"age\": %d}",
                     studentDTO.getId(),
                     studentDTO.getName(),
@@ -57,7 +57,7 @@ public class StudentServlet extends HttpServlet {
         String eMail = req.getParameter("email");
         String age = req.getParameter("age");
 
-        if(name == null || eMail == null || age == null) {
+        if (name == null || eMail == null || age == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"error\" : \"Invalid request\"}");
             return;
@@ -73,5 +73,73 @@ public class StudentServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"error\" : \"Invalid age\"}");
         }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("id");
+
+        if (id == null || id.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\" : \"Id is required....!\"}");
+        } else {
+            try {
+                int studentId = Integer.parseInt(id);
+                StudentDTO studentDTO = findById(studentId);
+
+                if(studentDTO == null) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    resp.getWriter().write("{\"error\" : \"Student not found\"}");
+                } else {
+                    studentList.remove(studentDTO);
+                    resp.getWriter().write("{\"message\" : \"Student deleted successfully\"}");
+                }
+            } catch (NumberFormatException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"error\" : \"Invalid id\"}");
+            }
+
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        String name = req.getParameter("name");
+        String eMail = req.getParameter("email");
+        String age = req.getParameter("age");
+
+        if (id == null || name == null || eMail == null || age == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\" : \"Invalid request\"}");
+        } else{
+            try {
+                int studentId = Integer.parseInt(id);
+                int studentAge = Integer.parseInt(age);
+
+                StudentDTO studentDTO = findById(studentId);
+                if(studentDTO == null) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    resp.getWriter().write("{\"error\" : \"Student not found\"}");
+                } else {
+                    studentDTO.setName(name);
+                    studentDTO.setEmail(eMail);
+                    studentDTO.setAge(studentAge);
+                    resp.getWriter().write("{\"message\" : \"Student updated successfully\"}");
+                }
+            } catch (NumberFormatException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"error\" : \"Invalid id\"}");
+            }
+        }
+    }
+
+    private StudentDTO findById(int id) {
+        for (StudentDTO studentDTO : studentList) {
+            if (studentDTO.getId() == id) {
+                return studentDTO;
+            }
+        }
+        return null;
     }
 }

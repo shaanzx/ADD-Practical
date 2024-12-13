@@ -6,6 +6,13 @@
     <title>student Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+            integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+    />
 </head>
 
 <body>
@@ -107,10 +114,14 @@
                             <td>${student.name}</td>
                             <td>${student.email}</d>
                             <td>${student.age}</td>
-                             <td>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStudentModal" onclick="updateStudent(${student.id})">Update</button>
-                                <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
-                            </td>
+                               <td>
+                            <button class="btn text-warning btn-sm" onclick="editStudent(${student.id},'${student.name}','${student.email}',${student.age})">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button class="btn text-danger btn-sm" onclick="deleteStudent(${student.id})">
+                            <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </td>
                             </tr>
 
                     `)
@@ -121,20 +132,6 @@
             }
         })
     }
-
-    $('#btn_update_student').click((e) => {
-        e.preventDefault()
-
-        const id = $('#updated_student_id').val()
-        const name = $('#updated_name').val()
-        const email = $('#updated_email').val()
-        const age = $('#updated_age').val()
-
-        const studentData = {
-            id, name, email, age
-        }
-
-    })
 
     $('#btn_save_student').click((e) => {
         e.preventDefault()
@@ -155,6 +152,8 @@
             },
             success(res) {
                 console.log(res)
+                fetchStudentData()
+                $(`#studentModal`).modal('hide')
             },
             error(res) {
                 console.log(res)
@@ -164,6 +163,38 @@
 
     })
 
+    $('#btn_update_student').click((e) => {
+        e.preventDefault()
+
+        const id = $('#updated_student_id').val()
+        const name = $('#updated_name').val()
+        const email = $('#updated_email').val()
+        const age = $('#updated_age').val()
+
+        const studentData = {
+            id, name, email, age
+        }
+
+        $.ajax({
+            url: 'http://localhost:8080//JavaEE_Day02_Web_exploded/student?id=' + id + '&name=' + name + '&email=' + email + '&age=' + age,
+            type: "PUT",
+            data: {
+                id: id,
+                name: name,
+                email: email,
+                age: age
+            },
+            success(res) {
+                console.log(res)
+                fetchStudentData()
+                $(`#updateStudentModal`).modal('hide')
+            },
+            error(res) {
+                console.log(res)
+            }
+        })
+    })
+
     const editStudent = (uid, name, email, age) => {
         $('#updated_student_id').val(uid)
         $('#updated_name').val(name)
@@ -171,13 +202,22 @@
         $('#updated_age').val(age)
 
         $('#updateStudentModal').modal('show')
+
     }
 
     const deleteStudent = (id) => {
         if (confirm("Are you sure ?")) {
-
-        } else {
-            console.log("no")
+            $.ajax({
+                url: `http://localhost:8080/JavaEE_Day02_Web_exploded/student?id=${id}`,
+                type: "DELETE",
+                success(res) {
+                    console.log(res)
+                    fetchStudentData()
+                },
+                error(res) {
+                    console.log(res)
+                }
+            })
         }
     }
 
