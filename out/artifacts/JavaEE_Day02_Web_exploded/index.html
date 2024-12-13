@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>student Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">student Management System</h1>
+
+    <hr/>
+
+    <button type="button" class="btn btn-primary mb-3 text-right" data-bs-toggle="modal"
+            data-bs-target="#studentModal">
+        Add New student
+    </button>
+
+    <!--     add student modal-->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="container m-2">
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="text" class="form-control" id="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age">
+                        </div>
+                        <button id="btn_save_student" type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update student Modal -->
+    <div class="modal fade" id="updateStudentModal" tabindex="-1" aria-labelledby="updateStudentModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="container m-2">
+                    <form>
+                        <div class="mb-3">
+                            <label for="updated_student_id" class="form-label">student Id</label>
+                            <input type="text" class="form-control" id="updated_student_id" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updated_name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="updated_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updated_email" class="form-label">Email</label>
+                            <input type="text" class="form-control" id="updated_email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updated_age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="updated_age">
+                        </div>
+                        <button id="btn_update_student" type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Email</td>
+            <td>Age</td>
+            <td>Actions</td>
+        </tr>
+        </thead>
+        <tbody id="student_table_body">
+
+        </tbody>
+    </table>
+</div>
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    const fetchStudentData = () => {
+        $.ajax({
+            url: "http://localhost:8080/JavaEE_Day02_Web_exploded/student",
+            type: "GET",
+            success(res) {
+                console.log(res)
+                $('#student_table_body').empty()
+                res.forEach(student => {
+                    $('#student_table_body').append(`
+                        <tr>
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.email}</d>
+                            <td>${student.age}</td>
+                             <td>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStudentModal" onclick="updateStudent(${student.id})">Update</button>
+                                <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
+                            </td>
+                            </tr>
+
+                    `)
+                })
+            },
+            error(res) {
+                console.log(res)
+            }
+        })
+    }
+
+    $('#btn_update_student').click((e) => {
+        e.preventDefault()
+
+        const id = $('#updated_student_id').val()
+        const name = $('#updated_name').val()
+        const email = $('#updated_email').val()
+        const age = $('#updated_age').val()
+
+        const studentData = {
+            id, name, email, age
+        }
+
+    })
+
+    $('#btn_save_student').click((e) => {
+        e.preventDefault()
+        const name = $('#name').val()
+        const email = $('#email').val()
+        const age = $('#age').val()
+
+        const studentData = {
+            name, email, age
+        }
+        $.ajax({
+            url: "http://localhost:8080/JavaEE_Day02_Web_exploded/student",
+            type: "POST",
+            data: {
+                name: name,
+                email: email,
+                age: age
+            },
+            success(res) {
+                console.log(res)
+            },
+            error(res) {
+                console.log(res)
+            }
+        })
+
+
+    })
+
+    const editStudent = (uid, name, email, age) => {
+        $('#updated_student_id').val(uid)
+        $('#updated_name').val(name)
+        $('#updated_email').val(email)
+        $('#updated_age').val(age)
+
+        $('#updateStudentModal').modal('show')
+    }
+
+    const deleteStudent = (id) => {
+        if (confirm("Are you sure ?")) {
+
+        } else {
+            console.log("no")
+        }
+    }
+
+    fetchStudentData()
+</script>
+</body>
+
+</html>
